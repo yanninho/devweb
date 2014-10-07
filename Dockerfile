@@ -2,8 +2,16 @@ FROM buildpack-deps:jessie
 
 MAINTAINER	Yannick Saint Martino 
 
+RUN apt-get -y update
+
+# install python-software-properties (so you can do add-apt-repository)
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q python-software-properties software-properties-common
+
+#install tools
+RUN apt-get install -y curl wget unzip vim git sudo zip bzip2 fontconfig 
+
 #install jdk
-RUN apt-get update && apt-get install --no-install-recommends -y openjdk-7-jdk
+RUN apt-get install --no-install-recommends -y openjdk-7-jdk
 
 # install maven
 RUN apt-get -y install maven
@@ -18,7 +26,6 @@ ENV RUBY_VERSION 2.1.3
 # some of ruby's build scripts are written in ruby
 # we purge this later to make sure our final image uses what we just built
 RUN apt-get install -y bison ruby \
-        && rm -rf /var/lib/apt/lists/* \
         && mkdir -p /usr/src/ruby \
         && curl -SL "http://cache.ruby-lang.org/pub/ruby/$RUBY_MAJOR/ruby-$RUBY_VERSION.tar.bz2" \
                 | tar -xjC /usr/src/ruby --strip-components=1 \
@@ -59,5 +66,16 @@ RUN npm install -g yo
 # Install Bower & Grunt
 RUN npm install -g bower grunt-cli gulp
 
+# install SSH server so we can connect multiple times to the container
+RUN apt-get -y install openssh-server \
+	&& rm -rf /var/lib/apt/lists/*
+RUN mkdir /var/run/sshd
+RUN echo 'root:toor' |chpasswd
+RUN groupadd devweb && useradd devweb -s /bin/bash -m -g devweb -G devweb && adduser devweb sudo
+RUN echo 'devweb:devweb' |chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN mkdir -p /home/devweb/workspace
 
 
+EXPOSE 22
+CMD    /usr/sbin/sshd -D
