@@ -36,7 +36,6 @@ RUN apt-get install -y bison ruby \
         && apt-get purge -y --auto-remove bison ruby \
         && make install \
         && rm -r /usr/src/ruby
-        && rm -rf /var/lib/apt/lists/*
 
 # skip installing gem documentation
 RUN echo 'gem: --no-rdoc --no-ri' >> /.gemrc
@@ -75,3 +74,15 @@ EXPOSE 8000
 EXPOSE 8080 
 EXPOSE 9000 
 EXPOSE 35729
+
+# install SSH server so we can connect multiple times to the container
+RUN apt-get -y install openssh-server \
+ && rm -rf /var/lib/apt/lists/*
+RUN mkdir /var/run/sshd
+RUN echo 'root:toor' |chpasswd
+RUN groupadd devweb && useradd devweb -s /bin/bash -m -g devweb -G devweb && adduser devweb sudo
+RUN echo 'devweb:devweb' |chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+EXPOSE 22
+CMD /usr/sbin/sshd -D
