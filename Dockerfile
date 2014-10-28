@@ -70,4 +70,8 @@ RUN npm install -g bower grunt-cli gulp
 VOLUME ["/workspace"]
 WORKDIR /workspace
 
-EXPOSE 80 8080 9000 35729
+EXPOSE 80
+EXPOSE 8000
+EXPOSE 8080 
+EXPOSE 9000 
+EXPOSE 35729
