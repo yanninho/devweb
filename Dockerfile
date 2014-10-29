@@ -84,5 +84,6 @@ RUN groupadd devweb && useradd devweb -s /bin/bash -m -g devweb -G devweb && add
 RUN echo 'devweb:devweb' |chpasswd
 
 RUN chown devweb:devweb -R /workspace
+RUN chown devweb:devweb -R /usr/local/lib/node_modules
 
 USER devweb
