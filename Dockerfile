@@ -76,14 +76,3 @@ EXPOSE 8000
 EXPOSE 8080 
 EXPOSE 9000 
 EXPOSE 35729
-
-# users
-RUN mkdir /var/run/sshd
-RUN echo 'root:toor' |chpasswd
-RUN groupadd devweb && useradd devweb -s /bin/bash -m -g devweb -G devweb && adduser devweb sudo
-RUN echo 'devweb:devweb' |chpasswd
-
-RUN chown devweb:devweb -R /workspace
-RUN chown devweb:devweb -R /usr/local/lib/node_modules
-
-USER devweb
